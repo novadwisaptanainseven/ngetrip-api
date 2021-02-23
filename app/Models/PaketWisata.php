@@ -42,6 +42,33 @@ class PaketWisata extends Model
         return $data_paket;
     }
 
+    // Get Paket Wisata
+    public static function getAll()
+    {
+        // Tabel - tabel
+        $tbl_paket_wisata = "paket_wisata";
+        $tbl_gambar = "gambar_wisata";
+
+        // Get data paket wisata
+        $data_paket = DB::table($tbl_paket_wisata)
+            ->get();
+
+        // Get data gambar utama
+        foreach ($data_paket as $d) {
+            $gambar = DB::table($tbl_gambar)
+                ->where(
+                    [
+                        ["id_paket_wisata", "=", $d->id_paket_wisata],
+                        ["status", "=", 1],
+                    ]
+                )
+                ->first();
+            $d->gambar = $gambar->file_gambar;
+        }
+
+        return $data_paket;
+    }
+
     // Get Paket Wisata By Id
     public static function getById($id_paket_wisata)
     {

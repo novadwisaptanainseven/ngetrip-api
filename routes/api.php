@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\AgentTravelController;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\PaketWisataController;
 use App\Http\Controllers\TiketWisataController;
+use App\Http\Controllers\WishlistController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -99,3 +101,12 @@ Route::post('tiket-wisata', [TiketWisataController::class, 'insert']);
 Route::put('tiket-wisata/{id_tiket_wisata}', [TiketWisataController::class, 'edit']);
 // Delete Tiket Wisata
 Route::delete('tiket-wisata/{id_tiket_wisata}', [TiketWisataController::class, 'delete']);
+
+// Wishlist
+// Insert Wishlist
+Route::post('wishlist', [WishlistController::class, "insert"]);
+// Get All Wishlist
+Route::get('wishlist/{username}', [WishlistController::class, "getByUsername"]);
+
+// Download File Gambar
+Route::get("file/{path}/{filename}", [FileController::class, "getImage"]);

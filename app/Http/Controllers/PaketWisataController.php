@@ -23,7 +23,7 @@ class PaketWisataController extends Controller
     // Get All Paket Wisata
     public function getAll()
     {
-        $data = PaketWisata::all();
+        $data = PaketWisata::getAll();
 
         return response()->json([
             "message" => "Berhasil mendapatkan semua data paket wisata",
