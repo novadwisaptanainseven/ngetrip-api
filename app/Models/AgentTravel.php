@@ -13,6 +13,30 @@ class AgentTravel extends Model
     protected $table = "agent_travel";
     protected $primaryKey = "id_agent_travel";
 
+    // Get All Agent Travel
+    public static function getById($id_agent_travel)
+    {
+        // Tabel - tabel
+        $tbl_agent_travel = 'agent_travel';
+        $tbl_kontak = 'kontak_agent_travel';
+
+        // Cek apakah data agent travel ditemukan
+        $data_agent = DB::table($tbl_agent_travel)
+            ->where("id_agent_travel", "=", $id_agent_travel)
+            ->first();
+        if (!$data_agent) {
+            return null;
+        }
+
+        $kontak_agent = DB::table($tbl_kontak)
+            ->where("id_agent_travel", "=", $id_agent_travel)
+            ->get();
+
+        $data_agent->kontak = $kontak_agent;
+
+        return $data_agent;
+    }
+
     // Insert Agent Travel
     public static function insert($req)
     {

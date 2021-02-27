@@ -25,10 +25,7 @@ class PaketWisataController extends Controller
     {
         $data = PaketWisata::getAll();
 
-        return response()->json([
-            "message" => "Berhasil mendapatkan semua data paket wisata",
-            "data" => $data
-        ], 200);
+        return response()->json($data, 200);
     }
 
     // Get Paket Wisata By Id

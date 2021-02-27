@@ -12,11 +12,21 @@ class FileController extends Controller
         $fullpath = "/app/$path/$filename";
 
         if (file_exists(storage_path($fullpath))) {
-            return response()->download(storage_path($fullpath));
+            return response()->file(storage_path($fullpath), [
+                'Content-Disposition' => 'inline; filename="' . $filename . '"'
+            ], 200);
         } else {
             return response()->json([
                 "message" => "Gambar tidak ditemukan"
             ], 404);
         }
+
+        // if (file_exists(storage_path($fullpath))) {
+        //     return response()->download(storage_path($fullpath));
+        // } else {
+        //     return response()->json([
+        //         "message" => "Gambar tidak ditemukan"
+        //     ], 404);
+        // }
     }
 }

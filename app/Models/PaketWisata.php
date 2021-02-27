@@ -47,10 +47,16 @@ class PaketWisata extends Model
     {
         // Tabel - tabel
         $tbl_paket_wisata = "paket_wisata";
+        $tbl_agent_travel = "agent_travel";
         $tbl_gambar = "gambar_wisata";
 
         // Get data paket wisata
         $data_paket = DB::table($tbl_paket_wisata)
+            ->select(
+                "$tbl_paket_wisata.*",
+                "$tbl_agent_travel.nama AS nama_agent_travel"
+            )
+            ->leftJoin($tbl_agent_travel, "$tbl_agent_travel.id_agent_travel", "=", "$tbl_paket_wisata.id_agent_travel")
             ->get();
 
         // Get data gambar utama

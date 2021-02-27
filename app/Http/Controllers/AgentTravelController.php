@@ -13,22 +13,16 @@ class AgentTravelController extends Controller
     {
         $data = AgentTravel::all();
 
-        return response()->json([
-            "message" => "Berhasil mendapatkan semua data agent travel",
-            "data" => $data
-        ], 200);
+        return response($data, 200);
     }
 
     // Get Agent Travel By Id
     public function getById($id_agent_travel)
     {
-        $data = AgentTravel::where('id_agent_travel', '=', $id_agent_travel)->first();
+        $data = AgentTravel::getById($id_agent_travel);
 
         if ($data) {
-            return response()->json([
-                "message" => "Berhasil mendapatkan data agent travel dengan id: {$id_agent_travel}",
-                "data" => $data
-            ], 200);
+            return response()->json($data);
         } else {
             return response()->json([
                 "message" => "Data agent travel dengan id: {$id_agent_travel} tidak ditemukan"
