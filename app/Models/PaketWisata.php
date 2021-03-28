@@ -20,10 +20,16 @@ class PaketWisata extends Model
         // Tabel - tabel
         $tbl_paket_wisata = "paket_wisata";
         $tbl_gambar = "gambar_wisata";
+        $tbl_agent_travel = "agent_travel";
 
         // Get data paket wisata
         $data_paket = DB::table($tbl_paket_wisata)
-            ->where('id_agent_travel', '=', $id_agent_travel)
+            ->select(
+                "$tbl_paket_wisata.*",
+                "$tbl_agent_travel.nama as nama_agent_travel",
+            )
+            ->where("$tbl_paket_wisata.id_agent_travel", '=', $id_agent_travel)
+            ->leftJoin($tbl_agent_travel, "$tbl_agent_travel.id_agent_travel", "=", "$tbl_paket_wisata.id_agent_travel")
             ->get();
 
         // Get data gambar utama
@@ -84,11 +90,64 @@ class PaketWisata extends Model
         $tbl_include = "include_wisata";
         $tbl_exclude = "exclude_wisata";
         $tbl_deskripsi = "deskripsi_wisata";
+        $tbl_agent_travel = "agent_travel";
 
         // Get data paket wisata
         $data_paket = DB::table($tbl_paket_wisata)
+            ->select(
+                "$tbl_paket_wisata.*",
+                "$tbl_agent_travel.nama AS nama_agent_travel",
+                "$tbl_agent_travel.gambar AS gambar_agent_travel",
+            )
             ->where('id_paket_wisata', '=', $id_paket_wisata)
+            ->leftJoin($tbl_agent_travel, "$tbl_agent_travel.id_agent_travel", "=", "$tbl_paket_wisata.id_agent_travel")
             ->first();
+
+        $data_gambar = DB::table($tbl_gambar)
+            ->where([
+                ["id_paket_wisata", "=", $id_paket_wisata],
+                ["status", "=", 1],
+            ])
+            ->first()->file_gambar;
+
+        $data_gambar2 = DB::table($tbl_gambar)
+            ->where([
+                ["id_paket_wisata", "=", $id_paket_wisata],
+            ])
+            ->get();
+
+        $data_include = DB::table($tbl_include)
+            ->where([
+                ["id_paket_wisata", "=", $id_paket_wisata]
+            ])
+            ->get();
+
+        $data_exclude = DB::table($tbl_exclude)
+            ->where([
+                ["id_paket_wisata", "=", $id_paket_wisata]
+            ])
+            ->get();
+
+        $data_deskripsi = DB::table($tbl_deskripsi)
+            ->where([
+                ["id_paket_wisata", "=", $id_paket_wisata]
+            ])
+            ->get();
+
+        $data_paket->gambar = $data_gambar;
+        $data_paket->gambar_paket_wisata = $data_gambar2;
+        $data_paket->include = $data_include;
+        foreach ($data_include as $i => $item) {
+            $item->no = $i + 1;
+        }
+        $data_paket->exclude = $data_exclude;
+        foreach ($data_exclude as $i => $item) {
+            $item->no = $i + 1;
+        }
+        $data_paket->deskripsi = $data_deskripsi;
+        foreach ($data_deskripsi as $i => $item) {
+            $item->no = $i + 1;
+        }
 
         // Cek apakah data paket wisata ditemukan
         if ($data_paket) {
@@ -98,6 +157,86 @@ class PaketWisata extends Model
         }
     }
 
+    // Insert Paket Wisata
+    public static function insertPaketWisata($req)
+    {
+        // Tabel - tabel
+        $tbl_paket_wisata = "paket_wisata";
+        $tbl_gambar = "gambar_wisata";
+        $tbl_agent_travel = "agent_travel";
+        $tbl_include = "include_wisata";
+        $tbl_exclude = "exclude_wisata";
+        $tbl_deskripsi = "deskripsi_wisata";
+
+        // Cek apakah data agent travel ditemukan
+        $data_agent = DB::table($tbl_agent_travel)->where('id_agent_travel', '=', $req->id_agent_travel)->first();
+        if (!$data_agent) {
+            return 404;
+        }
+
+        // Tambah data paket wisata
+        $data_paket = [
+            "id_agent_travel" => $req->id_agent_travel,
+            "nama_paket_wisata" => $req->nama_paket_wisata,
+            "harga" => $req->harga,
+            "satuan" => $req->satuan,
+            "meeting_point" => $req->meeting_point,
+        ];
+        $insert = DB::table($tbl_paket_wisata)->insert($data_paket);
+
+        // Tambah gambar wisata
+        $file = $req->file("gambar");
+        // Sanitasi nama file
+        $sanitize = sanitizeFile($file);
+        $gambar = $file->storeAs("images", rand(0, 100) . time() . '-' . $sanitize);
+
+        // Get id paket wisata 
+        $id_paket_wisata = DB::table($tbl_paket_wisata)
+            ->orderBy('id_paket_wisata', 'desc')
+            ->first()
+            ->id_paket_wisata;
+
+        $data_gambar = [
+            "id_paket_wisata" => $id_paket_wisata,
+            "file_gambar" => $gambar,
+            "status" => 1
+        ];
+        DB::table($tbl_gambar)->insert($data_gambar);
+
+        // Tambah Include Wisata
+        foreach ($req->include as $item) {
+            $data_include = [
+                "id_paket_wisata" => $id_paket_wisata,
+                "include" => $item
+            ];
+            DB::table($tbl_include)->insert($data_include);
+        }
+
+        // Tambah Exclude Wisata
+        foreach ($req->exclude as $item) {
+            $data_exclude = [
+                "id_paket_wisata" => $id_paket_wisata,
+                "exclude" => $item
+            ];
+            DB::table($tbl_exclude)->insert($data_exclude);
+        }
+
+        // Tambah Deskripsi Wisata
+        foreach ($req->deskripsi as $item) {
+            $data_deskripsi = [
+                "id_paket_wisata" => $id_paket_wisata,
+                "hari_ke" => $item["hari_ke"],
+                "keterangan" => $item["keterangan"]
+            ];
+            DB::table($tbl_deskripsi)->insert($data_deskripsi);
+        }
+
+        if ($insert) {
+            return 201;
+        } else {
+            return false;
+        }
+    }
     // Insert Paket Wisata
     public static function insert($req, $id_agent_travel)
     {
@@ -264,6 +403,31 @@ class PaketWisata extends Model
         return $data_deskripsi;
     }
 
+    // Get Deskripsi By ID
+    public static function getDeskripsiById($id_paket_wisata, $id_deskripsi)
+    {
+        // Tabel - tabel
+        $tbl_deskripsi = "deskripsi_wisata";
+        $tbl_paket = "paket_wisata";
+
+        // Cek apakah data paket wisata ditemukan
+        $data_paket = DB::table($tbl_paket)
+            ->where("id_paket_wisata", '=', $id_paket_wisata)
+            ->first();
+        if (!$data_paket) {
+            return 404;
+        }
+
+        $data_deskripsi = DB::table($tbl_deskripsi)
+            ->where([
+                ['id_paket_wisata', '=', $id_paket_wisata],
+                ['id_deskripsi_wisata', '=', $id_deskripsi],
+            ])
+            ->first();
+
+        return $data_deskripsi;
+    }
+
     // Insert Deskripsi Wisata
     public static function insertDeskripsi($req, $id_paket_wisata)
     {
@@ -309,18 +473,28 @@ class PaketWisata extends Model
             return 404;
         }
 
-        // Tambah data deskripsi wisata
+        // Edit data deskripsi wisata
         $data_deskripsi = [
             "hari_ke" => $req->hari_ke,
             "keterangan" => $req->keterangan,
         ];
         DB::table($tbl_deskripsi)
-            ->where('id_deskripsi_wisata', '=', $id_deskripsi_wisata)
+            ->where(
+                [
+                    ['id_paket_wisata', '=', $id_paket_wisata],
+                    ['id_deskripsi_wisata', '=', $id_deskripsi_wisata],
+                ]
+            )
             ->update($data_deskripsi);
 
         // Get data setelah diedit
         $edited_data = DB::table($tbl_deskripsi)
-            ->where('id_deskripsi_wisata', '=', $id_deskripsi_wisata)
+            ->where(
+                [
+                    ['id_paket_wisata', '=', $id_paket_wisata],
+                    ['id_deskripsi_wisata', '=', $id_deskripsi_wisata],
+                ]
+            )
             ->first();
 
         return $edited_data;
@@ -345,8 +519,8 @@ class PaketWisata extends Model
         $data_deskripsi = DB::table($tbl_deskripsi)
             ->where(
                 [
-                    ["id_deskripsi_wisata", "=", $id_deskripsi_wisata],
                     ["id_paket_wisata", "=", $id_paket_wisata],
+                    ["id_deskripsi_wisata", "=", $id_deskripsi_wisata],
                 ]
             )
             ->first();
@@ -358,8 +532,8 @@ class PaketWisata extends Model
         DB::table($tbl_deskripsi)
             ->where(
                 [
-                    ["id_deskripsi_wisata", "=", $id_deskripsi_wisata],
                     ["id_paket_wisata", "=", $id_paket_wisata],
+                    ["id_deskripsi_wisata", "=", $id_deskripsi_wisata],
                 ]
             )
             ->delete();
@@ -655,6 +829,7 @@ class PaketWisata extends Model
 
         $data_gambar = DB::table($tbl_gambar)
             ->where('id_paket_wisata', '=', $id_paket_wisata)
+            ->orderBy("status", "desc")
             ->get();
 
         return $data_gambar;
@@ -734,6 +909,41 @@ class PaketWisata extends Model
             ->delete();
         $path = $data_gambar->file_gambar;
         Storage::delete($path);
+
+        return true;
+    }
+
+    // Update Status Gambar
+    public static function updateStatusGambar($req, $id_paket_wisata, $id_gambar)
+    {
+        $tbl_gambar = "gambar_wisata";
+
+        $data_gambar = DB::table($tbl_gambar)
+            ->where("id_gambar_wisata", "=", $id_gambar)
+            ->first();
+        // Cek apakah data gambar ditemukan
+        if (!$data_gambar) {
+            return null;
+        }
+
+        // Untuk mengatasi error jika status bernilai null
+        $status = $req->status ? $req->status : $data_gambar->status;
+
+        // Proses update status gambar
+        DB::table($tbl_gambar)
+            ->where("id_gambar_wisata", "=", $id_gambar)
+            ->update(["status" => $status]);
+
+        // Setelah update status utama gambar dengan id yang bersangkutan
+        // Maka perlu mengupdate semua status gambar menjadi 0 karena status utama tidak boleh lebih dari 2 gambar 
+        if ($status == 1) {
+            DB::table($tbl_gambar)
+                ->where([
+                    ["id_paket_wisata", "=", $id_paket_wisata],
+                    ["id_gambar_wisata", "<>", $id_gambar],
+                ])
+                ->update(["status" => 0]);
+        }
 
         return true;
     }

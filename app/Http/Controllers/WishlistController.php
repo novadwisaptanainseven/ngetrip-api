@@ -50,14 +50,39 @@ class WishlistController extends Controller
         $data = Wishlist::getByUsername($username);
 
         if ($data) {
-            return response()->json([
-                "message" => "Berhasil mendapatkan semua data wishlist dari user: $username",
-                "data" => $data
-            ], 200);
+            return response()->json($data, 200);
         } else {
             return response()->json([
                 "message" => "Data wishlist dari user: $username tidak ditemukan"
             ], 404);
         }
+    }
+
+    // Get Wishlist by Id Paket Wisata
+    public function getByIdPaketWisata(Request $request, $id_paket_wisata)
+    {
+        $data = Wishlist::where([
+            ["id_paket_wisata", "=", $id_paket_wisata],
+            ["username", "=", $request->username],
+        ])->first();
+
+        if ($data) {
+            return response()->json($data, 200);
+        } else {
+            return response()->json([
+                "message" => "Data wishlist dengan id paket wisata: $id_paket_wisata tidak ditemukan"
+            ], 404);
+        }
+    }
+
+    // Delete Wishlist
+    public function deleteWishlist(Request $request, $id_paket_wisata)
+    {
+        Wishlist::where([
+            ["id_paket_wisata", "=", $id_paket_wisata],
+            ["username", "=", $request->username],
+        ])->delete();
+
+        return response('', 201);
     }
 }

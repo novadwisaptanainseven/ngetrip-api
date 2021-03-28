@@ -31,9 +31,21 @@ Route::get('agent-travel/{id_agent_travel}', [AgentTravelController::class, 'get
 // Insert Agent Travel
 Route::post('agent-travel', [AgentTravelController::class, 'insert']);
 // Edit Agent Travel
-Route::put('agent-travel/{id_agent_travel}', [AgentTravelController::class, 'edit']);
+Route::post('agent-travel/{id_agent_travel}', [AgentTravelController::class, 'edit']);
 // Delete Agent Travel
-Route::delete('agent-travel/{id_agent_travel}', [AgentTravelController::class, 'delete']);
+Route::delete('agent-travel/{id_agent_travel}', [AgentTravelController::class, 'deleteAgentTravel']);
+
+// Kontak Agent Travel
+// Get All Kontak
+Route::get("agent-travel/{id_agent_travel}/kontak", [AgentTravelController::class, 'getAllKontak']);
+// Get Kontak By ID
+Route::get("agent-travel/{id_agent_travel}/kontak/{id_kontak}", [AgentTravelController::class, 'getKontakById']);
+// Insert Kontak
+Route::post("agent-travel/{id_agent_travel}/kontak", [AgentTravelController::class, 'insertKontak']);
+// Edit Kontak
+Route::put("agent-travel/{id_agent_travel}/kontak/{id_kontak}", [AgentTravelController::class, 'editKontak']);
+// Delete Kontak
+Route::delete("agent-travel/{id_agent_travel}/kontak/{id_kontak}", [AgentTravelController::class, 'deleteKontak']);
 
 // Paket Wisata
 
@@ -45,6 +57,8 @@ Route::get('agent-travel/{id_agent_travel}/paket-wisata', [PaketWisataController
 Route::get('paket-wisata/{id_paket_wisata}', [PaketWisataController::class, 'getById']);
 // Insert Paket Wisata berdasarkan data agent travel
 Route::post('agent-travel/{id_agent_travel}/paket-wisata', [PaketWisataController::class, 'insert']);
+// Insert Paket Wisata
+Route::post('paket-wisata', [PaketWisataController::class, 'insertPaketWisata']);
 // Edit Paket Wisata
 Route::put('paket-wisata/{id_paket_wisata}', [PaketWisataController::class, 'edit']);
 // Delete Paket Wisata
@@ -55,6 +69,8 @@ Route::post('paket-wisata/{id_paket_wisata}/rating', [PaketWisataController::cla
 // Deskripsi
 // Get All Deskripsi Wisata
 Route::get('paket-wisata/{id_paket_wisata}/deskripsi', [PaketWisataController::class, 'getDeskripsi']);
+// Get Deskripsi Wisata by ID
+Route::get('paket-wisata/{id_paket_wisata}/deskripsi/{id_deskripsi}', [PaketWisataController::class, 'getDeskripsiById']);
 // Insert Deskripsi Wisata
 Route::post('paket-wisata/{id_paket_wisata}/deskripsi', [PaketWisataController::class, 'insertDeskripsi']);
 // Edit Deskripsi Wisata
@@ -65,6 +81,8 @@ Route::delete('paket-wisata/{id_paket_wisata}/deskripsi/{id_deskripsi_wisata}', 
 // Include
 // Get All Include Wisata
 Route::get('paket-wisata/{id_paket_wisata}/include', [PaketWisataController::class, 'getInclude']);
+// Get Include Wisata By ID
+Route::get('paket-wisata/{id_paket_wisata}/include/{id_include}', [PaketWisataController::class, 'getIncludeById']);
 // Insert Include Wisata
 Route::post('paket-wisata/{id_paket_wisata}/include', [PaketWisataController::class, 'insertInclude']);
 // Edit Include Wisata
@@ -75,6 +93,8 @@ Route::delete('paket-wisata/{id_paket_wisata}/include/{id_include_wisata}', [Pak
 // Exclude
 // Get All Exclude Wisata
 Route::get('paket-wisata/{id_paket_wisata}/exclude', [PaketWisataController::class, 'getExclude']);
+// Get Exclude Wisata by ID
+Route::get('paket-wisata/{id_paket_wisata}/exclude/{id_exclude}', [PaketWisataController::class, 'getExcludeById']);
 // Insert Exclude Wisata
 Route::post('paket-wisata/{id_paket_wisata}/exclude', [PaketWisataController::class, 'insertExclude']);
 // Edit Exclude Wisata
@@ -89,10 +109,12 @@ Route::get('paket-wisata/{id_paket_wisata}/gambar', [PaketWisataController::clas
 Route::post('paket-wisata/{id_paket_wisata}/gambar', [PaketWisataController::class, 'insertGambar']);
 // Delete Gambar
 Route::delete('paket-wisata/{id_paket_wisata}/gambar/{id_gambar}', [PaketWisataController::class, 'deleteGambar']);
+// Update Status Gambar
+Route::put('paket-wisata/{id_paket_wisata}/gambar/{id_gambar}/status', [PaketWisataController::class, 'updateStatusGambar']);
 
 // Tiket Wisata
-// Get All Tiket Wisata
-Route::get('tiket-wisata', [TiketWisataController::class, 'getAll']);
+// Get Tiket Wisata by Username
+Route::get('tiket-wisata/username/{username}', [TiketWisataController::class, 'getByUsername']);
 // Get Tiket Wisata By Id
 Route::get('tiket-wisata/{id_tiket_wisata}', [TiketWisataController::class, 'getById']);
 // Insert Tiket Wisata
@@ -100,13 +122,17 @@ Route::post('tiket-wisata', [TiketWisataController::class, 'insert']);
 // Edit Tiket Wisata
 Route::put('tiket-wisata/{id_tiket_wisata}', [TiketWisataController::class, 'edit']);
 // Delete Tiket Wisata
-Route::delete('tiket-wisata/{id_tiket_wisata}', [TiketWisataController::class, 'delete']);
+Route::delete('tiket-wisata/{id_tiket_wisata}', [TiketWisataController::class, 'deleteTiket']);
 
 // Wishlist
 // Insert Wishlist
 Route::post('wishlist', [WishlistController::class, "insert"]);
 // Get All Wishlist
-Route::get('wishlist/{username}', [WishlistController::class, "getByUsername"]);
+Route::get('wishlist/username/{username}', [WishlistController::class, "getByUsername"]);
+// Get Wishlist by Id Paket Wisata and Username
+Route::get('wishlist/{id_paket_wisata}', [WishlistController::class, "getByIdPaketWisata"]);
+// Delete Wishlist by Id Paket Wisata
+Route::delete('wishlist/{id_paket_wisata}', [WishlistController::class, "deleteWishlist"]);
 
 // Download File Gambar
 Route::get("file/{path}/{filename}", [FileController::class, "getImage"]);
