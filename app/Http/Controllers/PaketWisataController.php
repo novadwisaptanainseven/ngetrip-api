@@ -26,6 +26,7 @@ class PaketWisataController extends Controller
     {
         $data = PaketWisata::getAll();
 
+        // UNtk namba no urut
         foreach ($data as $i => $d) {
             $d->no = $i + 1;
         }
