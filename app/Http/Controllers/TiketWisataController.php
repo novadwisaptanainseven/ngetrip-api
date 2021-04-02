@@ -8,6 +8,16 @@ use Illuminate\Support\Facades\Validator;
 
 class TiketWisataController extends Controller
 {
+    // Get All Tiket Wisata
+    public function getAll()
+    {
+        $data = TiketWisata::getAll();
+
+        return response()->json([
+            "message" => "Berhasil mendapatkan semua data transaksi",
+            "data" => $data
+        ], 200);
+    }
 
     // Get Tiket Wisata by Username
     public function getByUsername($username)
